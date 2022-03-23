@@ -6,11 +6,11 @@ namespace app
 
     class Rates
     {
-        public static API_Obj? Import()
+        public static API_Obj? Import(string currencyCode)
         {
             try
             {
-                String URLString = "https://v6.exchangerate-api.com/v6/4249d8055eb4abc6dda6bf86/latest/USD";
+                String URLString = $"https://v6.exchangerate-api.com/v6/4249d8055eb4abc6dda6bf86/latest/{currencyCode}";
                 using (var webClient = new System.Net.WebClient())
                 {
                     var json = webClient.DownloadString(URLString);
