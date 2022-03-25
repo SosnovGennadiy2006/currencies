@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.Design;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -14,7 +12,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using app.widgets;
 
 namespace app
 {
@@ -23,76 +20,50 @@ namespace app
     /// </summary>
     public partial class MainWindow : Window
     {
-        private string BaseCurrency = "USD";
-        
         public MainWindow()
         {
             InitializeComponent();
-            
-            ConvertCurrencies();
-        }
-
-        private void OnCurrencyClicked(object sender, RoutedEventArgs e)
-        {
-            MenuItem? obj =  sender as MenuItem;
-
-            if (obj != null)
-            {
-                string? code = Convert.ToString(obj.Header);
-                CurrencyMenu.Header = obj.Header;
-                if (code != null)
-                    BaseCurrency = code;
-            }
-        }
-
-        public static Object? GetPropertyValue(object srcObj, string propertyInfo)
-        {
-            PropertyInfo propertyInfoObj = srcObj.GetType().GetProperty(propertyInfo);
-
-            if (propertyInfoObj == null)
-                return null;
-
-            // Get the value from property.
-            object srcValue = srcObj.GetType()
-                .InvokeMember(propertyInfoObj.Name,
-                    BindingFlags.GetProperty,
-                    null,
-                    srcObj,
-                    null);
-
-            return srcValue;
         }
         
-        private void ConvertCurrencies()
+        private void OnMinimizeButtonClick(object sender, RoutedEventArgs e)
         {
-            API_Obj? o = Rates.Import(BaseCurrency);
-            if (o != null)
+            this.WindowState = WindowState.Minimized;
+        }
+
+        private void OnMaximizeRestoreButtonClick(object sender, RoutedEventArgs e)
+        {
+            if (this.WindowState == WindowState.Maximized)
             {
-                Currencies.Children.Clear();
-                
-                Type myType = o.conversion_rates.GetType();
-
-                PropertyInfo[] myProperties = myType.GetProperties();
-
-                foreach (var property in myProperties)
-                {
-                    object _property = GetPropertyValue(o.conversion_rates, property.Name);
-                    if (_property != null)
-                    {
-                        string res = Convert.ToString(_property);
-                        Currencies.Children.Add(new CurrencyInfo(BaseCurrency, property.Name, Convert.ToDouble(res)));
-                    }
-                }
+                this.WindowState = WindowState.Normal;
             }
             else
             {
-                MessageBox.Show("Unknown Error! Check your internet!");
+                this.WindowState = WindowState.Maximized;
             }
         }
 
-        private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
+        private void OnCloseButtonClick(object sender, RoutedEventArgs e)
         {
-            ConvertCurrencies();
+            this.Close();
+        }
+    
+        private void RefreshMaximizeRestoreButton()
+        {
+            if (this.WindowState == WindowState.Maximized)
+            {
+                this.maximizeButton.Visibility = Visibility.Collapsed;
+                this.restoreButton.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                this.maximizeButton.Visibility = Visibility.Visible;
+                this.restoreButton.Visibility = Visibility.Collapsed;
+            }
+        }
+        
+        private void Window_StateChanged(object sender, EventArgs e)
+        {
+            this.RefreshMaximizeRestoreButton();
         }
     }
 }
